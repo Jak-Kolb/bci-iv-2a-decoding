@@ -1,2 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual env
 .venv/
-notes.md
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Project outputs
+results/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
