@@ -25,7 +25,7 @@ class CSP:
         top_n = (eigenvectors[:, -self.n_components:]) # largest
 
         self.filters_ = np.concatenate((bottom_n, top_n), axis=1).T # shape (n_channels, 2*n_components)
-                
+        print("CSP filters shape:", self.filters_.shape, self.filters_[0].shape)
         return self
     
     def transform(self, X:np.ndarray) -> np.ndarray:
@@ -43,22 +43,26 @@ class CSP:
         return np.log(variances / variances.sum(axis=1, keepdims=True)) # normalize and log transform
         
         
-# def main(): 
+def main(): 
     
-#     data = load_subject(1)
-#     X_train, y_train = epoch_session(data["0train"])
+    data = load_subject(1)
+    X_train, y_train = epoch_session(data["0train"])
     
-#     mask = (y_train == 0) | (y_train == 1)
-#     Xb = X_train[mask]
-#     yb = y_train[mask]
+    # print(X_train[y_train == 0])
+    # print(y_train)
     
-#     csp = CSP(n_components=3)
-#     csp.fit(Xb, yb)
-#     features = csp.transform(Xb)
+    mask = (y_train == 0) | (y_train == 1)
+    Xb = X_train[mask]
+    yb = y_train[mask]
+    # print(yb)
+    
+    csp = CSP(n_components=3)
+    csp.fit(Xb, yb)
+    features = csp.transform(Xb)
 
-#     print("CSP filters shape:", csp.filters_.shape)
-#     print("CSP features shape:", features.shape)
-#     print("CSP feature stats:", features.mean(), features.std())
+    print("CSP filters shape:", csp.filters_.shape)
+    print("CSP features shape:", features.shape)
+    print("CSP feature stats:", features.mean(), features.std())
     
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
