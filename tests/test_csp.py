@@ -22,15 +22,19 @@ def test_csp():
     rng = np.random.default_rng(seed=42)
     n_channels, n_times, n_per_class = 8, 500, 50
     
-    w_class0 = np.zeros(n_channels); w_class0[0] = 1.0
-    w_class1 = np.zeros(n_channels); w_class1[1] = 1.0
+    w_class0 = np.zeros(n_channels); 
+    w_class1 = np.zeros(n_channels); 
+    w_class0[0] = 1.0
+    w_class1[1] = 1.0
     
     X0 = np.array([make_trial(w_class0, n_channels, n_times, rng=rng) for _ in range(n_per_class)])
     X1 = np.array([make_trial(w_class1, n_channels, n_times, rng=rng) for _ in range(n_per_class)])
     
     X = np.concatenate([X0, X1], axis=0)
     y = np.concatenate([np.zeros(n_per_class), np.ones(n_per_class)]).astype(int)
-    
+    print("X shape:", X)
+    print("Y shape:", y.shape)
+    # print("Y", y)
     csp = CSP(n_components=1)
     csp.fit(X, y)
     
@@ -55,6 +59,7 @@ def test_csp_features_separate_classes():
     X1 = np.array([make_trial(w_class1, n_channels, n_times, rng=rng) for _ in range(n_per_class)])
 
     X = np.concatenate([X0, X1], axis=0)
+    print("X shape:", X.shape)
     y = np.concatenate([np.zeros(n_per_class), np.ones(n_per_class)]).astype(int)
 
     csp = CSP(n_components=1)
@@ -66,3 +71,13 @@ def test_csp_features_separate_classes():
     class0_feature = features[:, 1]   # row 1 of filters_ = top eigenvalue = class 0 direction
     assert class0_feature[y == 0].mean() > class0_feature[y == 1].mean(), \
         "Class 0 feature should be larger for class 0 trials"
+        
+        
+def main(): 
+    
+    test_csp()
+    test_csp_features_separate_classes()
+    print("All tests passed!")
+    
+if __name__ == "__main__":
+    main()
