@@ -34,10 +34,11 @@ def test_csp():
     y = np.concatenate([np.zeros(n_per_class), np.ones(n_per_class)]).astype(int)
     print("X shape:", X)
     print("Y shape:", y.shape)
-    # print("Y", y)
+    print("Y", y)
     csp = CSP(n_components=1)
     csp.fit(X, y)
     
+    print("CSP filters:", csp.filters_[1], csp.filters_[0])
     filter_for_class0 = csp.filters_[1] # should match w_class0
     filter_for_class1 = csp.filters_[0] # should match w_class1
     
@@ -50,10 +51,10 @@ def test_csp():
 def test_csp_features_separate_classes():
     """Sanity check: log-variance features should differ systematically between classes."""
     rng = np.random.default_rng(seed=42)
-    n_channels, n_times, n_per_class = 8, 500, 50
+    n_channels, n_times, n_per_class = 8, 500, 50 # 8 channels, 500 time points, 50 trials per class
 
     w_class0 = np.zeros(n_channels); w_class0[0] = 1.0
-    w_class1 = np.zeros(n_channels); w_class1[1] = 1.0
+    w_class1 = np.zeros(n_channels); w_class1[1] = 1.0 # creates classes with max variance
 
     X0 = np.array([make_trial(w_class0, n_channels, n_times, rng=rng) for _ in range(n_per_class)])
     X1 = np.array([make_trial(w_class1, n_channels, n_times, rng=rng) for _ in range(n_per_class)])

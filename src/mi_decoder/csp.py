@@ -13,16 +13,19 @@ class CSP:
         
         # print("Shapes:", X[y == 0].transpose(0, 2, 1).shape, X[y == 1].shape)
         T = X.shape[2] # number of time points per trial
-        cov_class1 = (X[y == 0] @ (X[y == 0].transpose(0, 2, 1))).mean(axis=0) / (T-1) # shape (n_trials_class1, n_channels, n_times)
-        cov_class2 = (X[y == 1] @ (X[y == 1].transpose(0, 2, 1))).mean(axis=0) / (T-1) # shape (n_trials_class2, n_channels, n_times)
-        # print("Covariance shapes:", cov_class1.shape, cov_class2.shape)
+        # print("X shape:", X.shape)
+        cov_class1 = (X[y == 0] @ (X[y == 0].transpose(0, 2, 1))).mean(axis=0) / (T-1) 
+        cov_class2 = (X[y == 1] @ (X[y == 1].transpose(0, 2, 1))).mean(axis=0) / (T-1)
+        # (72, 22, 1126) @ (72, 1126, 22) -> (72, 22, 22) -> mean -> (22, 22) -> for each class
+  
+  
         _, eigenvectors = eigh(cov_class1, cov_class1 + cov_class2)
         
         # print(type(eigenvalues), eigenvalues.shape)
         # print(type(eigenvectors), eigenvectors.shape)        
         # print("Eigenvectors shape:", eigenvectors.shape)
-        bottom_n = (eigenvectors[:, :self.n_components]) # smallest eigenvectors
-        top_n = (eigenvectors[:, -self.n_components:]) # largest
+        bottom_n = (eigenvectors[:, :self.n_components]) # smallest eigenvalues
+        top_n = (eigenvectors[:, -self.n_components:]) # largest eigenvalues
 
         self.filters_ = np.concatenate((bottom_n, top_n), axis=1).T # shape (n_channels, 2*n_components)
         # print("CSP filters shape:", self.filters_.shape, self.filters_[0].shape)
@@ -55,9 +58,7 @@ class CSPMulticlass:
         self.csps_ = []
         for c in self.classes_:
             y_binary = (y == c).astype(int)  # 1 for "this class", 0 for "rest"
-            # NOTE: y_binary uses 0/1, but our binary CSP treats label 0 as one class
-            # and label 1 as the other. So `c` becomes label 1 here. The filters_[3:]
-            # of each per-class CSP will be the "class c" directions.
+
             csp = CSP(n_components=self.n_components)
             csp.fit(X, y_binary)
             self.csps_.append(csp)
@@ -67,24 +68,43 @@ class CSPMulticlass:
         feature_blocks = [csp.transform(X) for csp in self.csps_]
         return np.concatenate(feature_blocks, axis=1)
         
+# def main(): 
+    
+#     data = load_subject(1)
+#     X_train, y_train = epoch_session(data["0train"])
+    
+#     # print(y_train)
+#     mask = (y_train == 0) | (y_train == 1)
+    
+#     Xb = X_train[mask] # (144, 22, 1126)
+#     yb = y_train[mask] # (144,) with 72 zeros and 72 ones
+    
+#     csp = CSP(n_components=3)
+#     csp.fit(Xb, yb)
+#     features = csp.transform(Xb)
+
+#     print("CSP filters shape:", csp.filters_.shape)
+#     print("CSP features shape:", features.shape)
+#     print("CSP feature stats:", features.mean(), features.std())
+    
+    
 def main(): 
     
     data = load_subject(1)
     X_train, y_train = epoch_session(data["0train"])
     
-    # print(X_train[y_train == 0])
     # print(y_train)
+    # mask = (y_train == 0) | (y_train == 1)
     
-    mask = (y_train == 0) | (y_train == 1)
-    Xb = X_train[mask]
-    yb = y_train[mask]
-    # print(yb)
+    # Xb = X_train[mask] # (144, 22, 1126)
+    # yb = y_train[mask] # (144,) with 72 zeros and 72 ones
     
-    csp = CSP(n_components=3)
-    csp.fit(Xb, yb)
-    features = csp.transform(Xb)
+    csp = CSPMulticlass(n_components=3)
+    csp.fit(X_train, y_train)
+    features = csp.transform(X_train)
 
-    print("CSP filters shape:", csp.filters_.shape)
+    print("CSP filters shape:", csp.csps_[0].filters_.shape)
+    print("CSP shape:", type(csp.csps_[0]))
     print("CSP features shape:", features.shape)
     print("CSP feature stats:", features.mean(), features.std())
     
