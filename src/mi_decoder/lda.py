@@ -27,7 +27,7 @@ class LDA:
 
         # 3. compute pooled self.cov_ — for each class subtract its mean, accumulate (x-μ_c)(x-μ_c)^T, divide by N-K
         
-        # LOOP VERSION
+        """the loop way which make more sense intuitively but is less efficient than the numpy way"""
         # cov = np.zeros((d, d))
         # for k in range(K):
         #     R = X[class_idx==k] - self.means_[k] # (N_k, d)
@@ -45,7 +45,12 @@ class LDA:
         
         
         # 5. compute self.intercepts_
-        self.intercepts_ = -0.5 * np.sum(self.means_ * self.W_.T, axis=1) + np.log(self.priors_) # (K,)
+        """again, the loop way which make more sense intuitively but is less efficient than the numpy way"""
+        # self.intercepts_ = np.zeros(K)
+        # for k in range(K):
+        #     self.intercepts_[k] = -0.5 * np.dot(self.means_[k], self.W_[:, k]) + np.log(self.priors_[k])
+        
+        self.intercepts_ = -0.5 * np.einsum('ki,ik->k', self.means_, self.W_) + np.log(self.priors_) # most efficient but confusing as hell
         
         return self
 
