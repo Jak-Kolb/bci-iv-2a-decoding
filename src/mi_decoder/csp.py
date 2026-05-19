@@ -14,12 +14,12 @@ class CSP:
         # print("Shapes:", X[y == 0].transpose(0, 2, 1).shape, X[y == 1].shape)
         T = X.shape[2] # number of time points per trial
         # print("X shape:", X.shape)
-        cov_class1 = (X[y == 0] @ (X[y == 0].transpose(0, 2, 1))).mean(axis=0) / (T-1) 
-        cov_class2 = (X[y == 1] @ (X[y == 1].transpose(0, 2, 1))).mean(axis=0) / (T-1)
+        cov_class0 = (X[y == 0] @ (X[y == 0].transpose(0, 2, 1))).mean(axis=0) / (T-1) 
+        cov_class1 = (X[y == 1] @ (X[y == 1].transpose(0, 2, 1))).mean(axis=0) / (T-1)
         # (72, 22, 1126) @ (72, 1126, 22) -> (72, 22, 22) -> mean -> (22, 22) -> for each class
   
   
-        _, eigenvectors = eigh(cov_class1, cov_class1 + cov_class2)
+        _, eigenvectors = eigh(cov_class0, cov_class0 + cov_class1)
         
         # print(type(eigenvalues), eigenvalues.shape)
         # print(type(eigenvectors), eigenvectors.shape)        
