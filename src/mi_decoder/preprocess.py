@@ -23,6 +23,8 @@ def epoch_session(
     h_freq: float = 30.0,
     tmin: float = -0.5,
     tmax: float = 4.0,
+    baseline: tuple | None = None
+    
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     returns X as ndarray of shape (n_trials, n_channels, n_times)
@@ -62,7 +64,7 @@ def epoch_session(
             event_id={name : run_event_id[name] for name in CLASS_ID_TO_LABEL if name in run_event_id},
             tmin=tmin,
             tmax=tmax,
-            baseline=(tmin, 0),
+            baseline=baseline,
             preload=True, # forces data into memory now, otherwise epochs stores references to raw and re-reads each epoch 
         )
         
@@ -115,7 +117,7 @@ def erd_plot(
 
     P_baseline = (X[: , : , baseline_mask] ** 2).mean(axis=2)
     P_imagery = (X[: , : , imagery_mask] ** 2).mean(axis=2)
-    print(P_baseline.shape, P_imagery.shape)
+    # print(P_baseline.shape, P_imagery.shape)
 
     mne_codes = epochs.events[:, 2]
 
