@@ -56,11 +56,12 @@ def serializable(r):
             'subject_id': r.subject_id,
             'best_params': r.best_params,
             'cv_acc': float(r.cv_acc),
+            'cv_std': float(r.cv_std),
             'test_acc': float(r.test_acc),
             'confusion_mat': r.confusion_mat.tolist()
         }
 
-results_dir = Path('../results')
+results_dir = Path(__file__).resolve().parent.parent / 'results'
 output_file = results_dir / 'best_hyperparameters.json'
 results_dir.mkdir(exist_ok=True)
 

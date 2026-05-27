@@ -47,6 +47,7 @@ def iterate_subject(subject_id: int, l_freqs: list, h_freqs: list, tmins: list, 
     data = load_subject(subject_id)
 
     best_cv_acc = 0.0
+    cv_acc = 0.0
     best_params = None
     results = []
 
